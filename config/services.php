@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'tomorrow_io' => [
+        'api_key' => env('l1LnN9sX1FnoO9c7h1YSx0rTzHSByepc'),
+    ],
+
 ];

@@ -7,5 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
+    protected $fillable = [
+        'plz' => 'int',
+        'name' => 'string',
+        'temperature' => 'float',
+        'humidity' => 'float',
+        'wind_speed' => 'float',
+    ];
+
     use HasFactory;
 }
