@@ -7,6 +7,6 @@ Route::get('/', function () {
     return view('weather.index');
 });
 
-Route::post('/fetch-weather', [CityController::class, 'fetchWeather']);
+Route::post('/get-weather', [CityController::class, 'GetWeather']);
 
 require __DIR__.'/auth.php';

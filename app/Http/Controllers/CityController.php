@@ -2,100 +2,101 @@
 
 namespace App\Http\Controllers;
 use App\Models\City;
+use App\Models\SetCityDTO;
+use App\Models\QueryHistory;
 use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\UpdateCityRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class CityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-    public function fetchWeather(Request $request)
+    public function GetWeather(Request $request)
     {
-        $plz = $request->input('city');
+        $plz = (int)$request->input('plz');
         
+        $forecast = get_object_vars($this->ProcessForecast($plz));
+        
+        return compact('forecast');
+    }
 
+
+    public function hourHasPassed(Carbon $datetime) {
+        $currentTime = Carbon::now();
+
+        if ($datetime->diffInMinutes($currentTime) < 60) {
+            return false;
+        } else {
+            return true;
+        }
+     }
+
+     public function cityNameFromPostalCode(int $plz) {
         $response = Http::get("https://api.zippopotam.us/de/{$plz}");
 
-        $data = json_decode($response->getBody(), true);
+            $forecast = json_decode($response->getBody(), true);
 
-        $city = $data['places'][0]['place name'];
+            $cityName = $forecast['places'][0]['place name'];
 
-        // $apiKey = config('services.tomorrow_io.api_key');
-        $apiKey = 'l1LnN9sX1FnoO9c7h1YSx0rTzHSByepc';
+            return $cityName;
+     }
 
-        $response = Http::get("https://api.tomorrow.io/v4/weather/forecast?location=$city&apikey=$apiKey");
 
-        $data = json_decode($response->getBody(), true);
+     public function getWeatherForecast($plz) {
+        $cityName = $this->cityNameFromPostalCode($plz);
 
-        $apiData = [];
+            $apiKey = config('services.tomorrow_io.api_key');
 
-        $apiData = [
-                'plz' => $plz,
-                'name' => $data['location']['name'],
-                'temperature' => $data['timelines']['daily'][0]['values']['temperatureAvg'],
-                'humidity' => $data['timelines']['daily'][0]['values']['humidityAvg'],
-                'wind_speed' => $data['timelines']['daily'][0]['values']['windSpeedAvg'],
-            ];
+            $response = Http::get("https://api.tomorrow.io/v4/weather/forecast?location=$cityName&apikey=$apiKey");
 
-        // City::create($apiData);
+            $forecast = json_decode($response->getBody(), true);
 
-        return compact('apiData');
-    }
+            return $forecast;
+     }
 
-    public function index()
-    {
-        
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+     public function ProcessForecast($plz) {
+        $city = City::where('plz', $plz)->latest()->first();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreCityRequest $request)
-    {
-        //
-    }
+        if ($city && !$this->hourHasPassed(Carbon::parse($city->updated_at))) {
+            $newForecast = new SetCityDTO(
+                $plz, 
+                $city->name, 
+                $city->temperature, 
+                $city->humidity, 
+                $city->wind_speed,
+            );
+        } else {
+            $forecast = $this->getWeatherForecast($plz);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(City $city)
-    {
-        //
-    }
+            $newForecast = new SetCityDTO(
+                $plz, 
+                $forecast['location']['name'], 
+                $forecast['timelines']['daily'][0]['values']['temperatureAvg'], 
+                $forecast['timelines']['daily'][0]['values']['humidityAvg'], 
+                $forecast['timelines']['daily'][0]['values']['windSpeedAvg'],
+            );
+    
+            if(!$city){
+                City::create(get_object_vars($newForecast));
+            } else {
+                $city->plz = $newForecast->plz;
+                $city->name = $newForecast->name;
+                $city->temperature = $newForecast->temperature;
+                $city->humidity = $newForecast->humidity;
+                $city->wind_speed = $newForecast->wind_speed;
+    
+                $city->save();
+            }
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(City $city)
-    {
-        //
-    }
+        $this->ProtokolForecast(get_object_vars($newForecast));
+        return $newForecast;
+     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCityRequest $request, City $city)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(City $city)
-    {
-        //
-    }
+     public function ProtokolForecast($forecast) {
+        QueryHistory::create($forecast);
+     }
 }

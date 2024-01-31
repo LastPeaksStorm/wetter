@@ -12,28 +12,37 @@
 
     <form id="weatherForm" method="post">
         @csrf
-        <label for="city">Enter City Name:</label>
+        <label for="plz">Enter City Name:</label>
         <input type="text" id="city" name="city" required>
-        <button type="button" onclick="fetchWeather()">Get Weather</button>
+        <button type="button" onclick="getWeather()">Get Weather</button>
     </form>
+    <hr></hr>
 
-    <div id="weatherContainer"></div>
+    <div id="weatherContainer">
+        <p id="cityName"></p>
+        <p id="temperature"></p>
+        <p id="humidity"></p>
+        <p id="wind_speed"></p>
+    </div>
 
     <script>
-        function fetchWeather() {
+        function getWeather() {
             var formData = $('#weatherForm').serialize();
-
-            $.ajax({
-                type: 'POST',
-                url: '{{ url('/fetch-weather') }}',
-                data: formData,
-                success: function(data) {
-                    $('#weatherContainer').html(data['apiData']);
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url('/get-weather') }}',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#cityName').html('City: ' + response.forecast.name);
+                        $('#temperature').html('Avg. Temperature: ' + response.forecast.temperature + '°C');
+                        $('#humidity').html('Avg. Humidity: ' + response.forecast.humidity + '%');
+                        $('#wind_speed').html('Avg. Wind speed: ' + response.forecast.wind_speed + ' mph');
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
         }
     </script>
 
