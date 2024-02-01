@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="{{ url('/') }}">Home</a></li>
-            <li><a href="{{ url('/statistics') }}">Statistics</a></li>
-        </ul>
+    <nav class="nav">
+        <a href="{{ url('/') }}">Home</a>
+        <a href="{{ url('/statistics') }}">Statistics</a>
     </nav>
 
-    <h1>Statistics: </h1>
-    <div id="statisticsList"></div>
+    <div class="hero">
+        <h2>Statistics: </h2>
+        <hr/>
+        <div id="statisticsList"></div>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -31,7 +34,7 @@
                     if(response.serviceResponse.success) {
                         console.log(response.serviceResponse.success);
                         $.each(response.serviceResponse.data, function (index, temperature) {
-                            $("#statisticsList").append('<p><b>' + index + ':</b> ' + temperature + '°C</p>');
+                            $("#statisticsList").append('<p><b>Region ' + index + ':</b> ' + temperature + '°C</p>');
                         });
                     } else {
                         console.log(response.serviceResponse.success);
