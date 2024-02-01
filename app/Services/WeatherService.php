@@ -15,7 +15,7 @@
       public function FetchForecast($plz) {
         $city = City::where('plz', $plz)->latest()->first();
 
-        if ($city && !$this->hourHasPassed(Carbon::parse($city->updated_at))) {
+        if ($city && !$this->HourHasPassed(Carbon::parse($city->updated_at))) {
             $newForecast = [
                 'plz' => $plz, 
                 'name' => $city->name, 
@@ -57,8 +57,13 @@
 
       $regionsInfo = [];
       foreach ($cities as $city) {
-        $region = ($city->plz)[0];
-        $regionsInfo[$region] = 0;
+
+        // Only regions queried in last 30 days
+
+        if(!$this->MonthHasPassed(Carbon::parse($city->updated_at))) {
+          $region = ($city->plz)[0];
+          $regionsInfo[$region] = 0;
+        }
       }
 
       foreach ($regionsInfo as $key => &$value) {
@@ -77,7 +82,7 @@
       return $regionsInfo;
     }
 
-      public function hourHasPassed(Carbon $datetime) {
+      public function HourHasPassed(Carbon $datetime) {
         $currentTime = Carbon::now();
 
         if ($datetime->diffInMinutes($currentTime) < 60) {
@@ -87,6 +92,15 @@
         }
       }
 
+      public function MonthHasPassed(Carbon $datetime) {
+        $currentTime = Carbon::now();
+
+        if ($datetime->diffInMonths($currentTime) <= 1) {
+            return false;
+        } else {
+            return true;
+        }
+      }
 
       public function cityNameFromPostalCode($plz) {
         // nicht so umfangreiche, aber kostenfreie API, um Stadtname durch PLZ zu bekommen.
