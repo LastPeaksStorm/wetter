@@ -11,7 +11,7 @@
 <body>
     <nav class="nav">
         <a href="{{ url('/') }}">Home</a>
-        <a href="{{ url('/statistics') }}">Statistics</a>
+        <a href="{{ url('/statistics') }}" class="disabled">Statistics</a>
     </nav>
 
     <div class="hero">

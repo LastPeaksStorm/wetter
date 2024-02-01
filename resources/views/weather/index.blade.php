@@ -12,7 +12,7 @@
 
 <body>
     <nav class="nav">
-        <a href="{{ url('/') }}">Home</a>
+        <a href="{{ url('/') }}" class="disabled">Home</a>
         <a href="{{ url('/statistics') }}">Statistics</a>
     </nav>
 
@@ -59,7 +59,7 @@
         getHistory();
     });
 
-    document.addEventListener("keypress", function(event) {
+    $(document).addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         document.getElementById("weatherButton").click();
       }
