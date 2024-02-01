@@ -16,7 +16,7 @@
 
         public function GetWeather(Request $request)
         {
-            $plz = (int)$request->input('plz');
+            $plz = $request->input('plz');
             
             $forecast = $this->weatherService->FetchForecast($plz);
             

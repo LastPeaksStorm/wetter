@@ -59,12 +59,6 @@
         //     getHistory();
         // });
 
-
-
-        $(document).on('change', function() {
-            
-        });
-
         function getWeather() {
             var formData = $('#weatherForm').serialize();
                 $.ajax({

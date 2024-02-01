@@ -10,7 +10,7 @@ class CreateCitiesTable extends Migration
     {
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
-            $table->integer('plz');
+            $table->string('plz');
             $table->string('name');
             $table->integer('temperature');
             $table->integer('humidity');

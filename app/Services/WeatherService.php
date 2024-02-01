@@ -57,7 +57,7 @@
       $cities = City::all();
       $regionsInfo = [];
       foreach ($cities as $city) {
-        $region = ((string)$city->plz)[0];
+        $region = ($city->plz)[0];
         $regionsInfo[$region] = 0;
       }
 
@@ -65,13 +65,13 @@
         $sumTemper = 0;
         $count = 0;
         foreach($cities as $city){
-          if(((string)$city->plz)[0] == $key){
+          if(($city->plz)[0] == $key){
             $sumTemper += $city->temperature;
             $count++;
           }
         }
 
-        $value = $sumTemper / $count;
+        $value = round($sumTemper / $count);
       }
 
       return $regionsInfo;
@@ -88,8 +88,10 @@
       }
 
       public function cityNameFromPostalCode($plz) {
+          // nicht so umfangreiche, aber kostenfreie API, um Stadtname durch PLZ zu bekommen.
           $response = Http::get("https://api.zippopotam.us/de/{$plz}");
           $cityInfo = json_decode($response->getBody(), true);
+          
           $cityName = $cityInfo['places'][0]['place name'];
           
           return $cityName;
@@ -99,15 +101,16 @@
       public function getWeatherForecast($plz) {
           $cityName = $this->cityNameFromPostalCode($plz);
           $apiKey = config('services.tomorrow_io.api_key');
+          // Ihr API, um ducrh Stadtnamen Wetterinfo zu bekommen
           $response = Http::get("https://api.tomorrow.io/v4/weather/forecast?location=$cityName&apikey=$apiKey");
           $forecast = json_decode($response->getBody(), true);
 
           $filteredForecast = [
             'plz' => $plz,
             'name' => $forecast['location']['name'], 
-            'temperature' => intval($forecast['timelines']['daily'][0]['values']['temperatureAvg']), 
-            'humidity' => intval($forecast['timelines']['daily'][0]['values']['humidityAvg']), 
-            'wind_speed' => intval($forecast['timelines']['daily'][0]['values']['windSpeedAvg']),
+            'temperature' => (int)$forecast['timelines']['daily'][0]['values']['temperatureAvg'], 
+            'humidity' => (int)$forecast['timelines']['daily'][0]['values']['humidityAvg'], 
+            'wind_speed' => (int)$forecast['timelines']['daily'][0]['values']['windSpeedAvg'],
           ];
 
           return $filteredForecast;

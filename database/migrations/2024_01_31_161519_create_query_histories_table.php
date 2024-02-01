@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('query_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('plz');
+            $table->string('plz');
             $table->timestamps();
         });
     }
