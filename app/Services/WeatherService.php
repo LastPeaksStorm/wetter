@@ -57,15 +57,13 @@
 
       $regionsInfo = [];
       foreach ($cities as $city) {
-
         // Only regions queried in last 30 days
-
         if(!$this->MonthHasPassed(Carbon::parse($city->updated_at))) {
           $region = ($city->plz)[0];
           $regionsInfo[$region] = 0;
         }
       }
-
+      
       foreach ($regionsInfo as $key => &$value) {
         $sumTemper = 0;
         $count = 0;

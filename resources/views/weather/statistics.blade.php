@@ -17,7 +17,7 @@
     <div class="hero">
         <h2>Statistics: </h2>
         <hr/>
-        <div id="statisticsList"></div>
+        <div id="statisticsList"><p>Waiting...</p></div>
     </div>
 
     <script>
@@ -32,17 +32,21 @@
                 dataType: 'json',
                 success: function(response){
                     if(response.serviceResponse.success) {
-                        console.log(response.serviceResponse.success);
-                        $.each(response.serviceResponse.data, function (index, temperature) {
-                            $("#statisticsList").append('<p><b>Region ' + index + ':</b> ' + temperature + '°C</p>');
-                        });
+                        if(response.serviceResponse.data){
+                            $("#statisticsList").html('');
+                            $.each(response.serviceResponse.data, function (index, temperature) {
+                                $("#statisticsList").append('<p><b>Region ' + index + ':</b> ' + temperature + '°C</p>');
+                            });
+                        }
+                        else {
+                            $("#statisticsList").html('<p>Nothing to display yet.</p>');
+                        }
                     } else {
-                        console.log(response.serviceResponse.success);
-                        $("#statisticsList").append('<p>' + response.serviceResponse.message + '</p>');
+                        $("#statisticsList").html('<p>' + response.serviceResponse.message + '</p>');
                     }
                 },
                 error: function(error){
-                    $("#statisticsList").append('<p>Problem beim Schildern der Daten</p>');
+                    $("#statisticsList").html('<p>Problem beim Schildern der Daten</p>');
                 }
             });
         }

@@ -42,7 +42,7 @@
 <div class="marginal">
     <hr/>
     <h3>Query History: </h3>
-    <div id="queryList"></div>
+    <div id="queryList"><p>Waiting...</p></div>
 </div>
 
 <script>
@@ -81,11 +81,11 @@
                     $('#wind_speed').html('<b>Avg. Wind speed: </b>' + forecast.wind_speed + ' mph');
                     getHistory();
                 } else {
-                    $("#weatherContainer").append('<p>' + response.serviceResponse.message + '</p>');
+                    $("#weatherContainer").html('<p>' + response.serviceResponse.message + '</p>');
                 }
             },
             error: function (error) {
-                $("#weatherContainer").append('<p>Problem beim Schildern der Daten</p>');
+                $("#weatherContainer").html('<p>Problem beim Schildern der Daten</p>');
             }
         });
     }
@@ -96,20 +96,25 @@
             url: '{{ url('/get-history') }}',
             dataType: 'json',
             success: function (response) {
-                $('#queryList').html('');
                 if (response.serviceResponse.success) {
-                    $.each(response.serviceResponse.data, function (index, query) {
-                        let date = new Date(query.created_at);
-                        date = date.toLocaleString('de-DE', options);
+                    if(response.serviceResponse.data){
+                        $("#queryList").html('');
+                        $.each(response.serviceResponse.data, function (index, query) {
+                            let date = new Date(query.created_at);
+                            date = date.toLocaleString('de-DE', options);
 
-                        $('#queryList').append('<span><b>' + query.id + '. PLZ: </b>' + query.plz + ' - <b>Time:</b> ' + date + '</span><button class="button-small" onclick="RepeatQuery(' + query.plz + ')">Repeat</button><br/>')
-                    });
+                            $('#queryList').append('<span><b>' + query.id + '. PLZ: </b>' + query.plz + ' - <b>Time:</b> ' + date + '</span><button class="button-small" onclick="RepeatQuery(' + query.plz + ')">Repeat</button><br/>')
+                        });
+                    }
+                    else {
+                        $("#queryList").html('<p>Nothing to display yet.</p>');
+                    }
                 } else {
-                    $("#queryList").append('<p>' + response.serviceResponse.message + '</p>');
+                    $("#queryList").html('<p>' + response.serviceResponse.message + '</p>');
                 }
             },
             error: function (error) {
-                $("#queryList").append('<p>Problem beim Schildern der Daten</p>');
+                $("#queryList").html('<p>Problem with rendering of the query history</p>');
             }
         });
     }
