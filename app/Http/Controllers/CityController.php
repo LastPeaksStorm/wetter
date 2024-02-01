@@ -5,6 +5,7 @@
     use App\Http\Requests\UpdateCityRequest;
     use Illuminate\Http\Request;
     use App\Services\WeatherService;
+    use App\ServiceResponse;
 
     class CityController extends Controller
     {
@@ -16,22 +17,51 @@
 
         public function GetWeather(Request $request)
         {
+            $serviceResponse = new ServiceResponse();
             $plz = $request->input('plz');
             
-            $forecast = $this->weatherService->FetchForecast($plz);
-            
-            return compact('forecast');
+            try {
+                $forecast = $this->weatherService->FetchForecast($plz);
+                $serviceResponse->data = $forecast;
+            } catch (\Throwable $ex) {
+                $serviceResponse->success = false;
+                $serviceResponse->message = $ex->getMessage();
+            } finally {
+                return compact('serviceResponse');
+            }
         } 
 
         public function GetHistory(Request $request)
         {
-            $queries = $this->weatherService->GetAllQueries();
-            return compact('queries');
+            $serviceResponse = new ServiceResponse();
+
+            try{
+                $queries = $this->weatherService->GetAllQueries();
+                $serviceResponse->data = $queries;
+            }
+            catch (\Throwable $ex) {
+                $serviceResponse->success = false;
+                $serviceResponse->message = $ex->getMessage();
+            }
+            finally {
+                return compact('serviceResponse');
+            }
         }
 
         public function GetStatistics(Request $request)
         {
-            $statistics = $this->weatherService->GetRegionsTemperature();
-            return compact('statistics');
+            $serviceResponse = new ServiceResponse();
+
+            try {
+                $statistics = $this->weatherService->GetRegionsTemperature();
+                $serviceResponse->data = $statistics;
+            }
+            catch (\Throwable $ex) {
+                $serviceResponse->success = false;
+                $serviceResponse->message = $ex->getMessage();
+            }
+            finally {
+                return compact('serviceResponse');
+            }
         }
     }

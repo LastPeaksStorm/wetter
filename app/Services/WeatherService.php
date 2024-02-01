@@ -25,8 +25,7 @@
             ];
         } 
         else {
-            $newForecast = $this->getWeatherForecast($plz);
-
+              $newForecast = $this->getWeatherForecast($plz);
             if(!$city){
               City::create($newForecast);
             } else {
@@ -55,6 +54,7 @@
 
     public function GetRegionsTemperature() {
       $cities = City::all();
+
       $regionsInfo = [];
       foreach ($cities as $city) {
         $region = ($city->plz)[0];
@@ -87,35 +87,40 @@
         }
       }
 
+
       public function cityNameFromPostalCode($plz) {
-          // nicht so umfangreiche, aber kostenfreie API, um Stadtname durch PLZ zu bekommen.
-          $response = Http::get("https://api.zippopotam.us/de/{$plz}");
-          $cityInfo = json_decode($response->getBody(), true);
-          
+        // nicht so umfangreiche, aber kostenfreie API, um Stadtname durch PLZ zu bekommen.
+        $response = Http::get("https://api.zippopotam.us/de/{$plz}");
+        $cityInfo = json_decode($response->getBody(), true);
+
+        if(!count($cityInfo)){
+          throw new \Exception("Unsere API konnte Ihre Postleitzahl nicht finden. Bitte geben Sie eine Andere ein.");
+        }
           $cityName = $cityInfo['places'][0]['place name'];
-          
           return $cityName;
       }
 
 
       public function getWeatherForecast($plz) {
-          $cityName = $this->cityNameFromPostalCode($plz);
-          $apiKey = config('services.tomorrow_io.api_key');
-          // Ihr API, um ducrh Stadtnamen Wetterinfo zu bekommen
-          $response = Http::get("https://api.tomorrow.io/v4/weather/forecast?location=$cityName&apikey=$apiKey");
-          $forecast = json_decode($response->getBody(), true);
+        $cityName = $this->cityNameFromPostalCode($plz);
 
-          $filteredForecast = [
-            'plz' => $plz,
-            'name' => $forecast['location']['name'], 
-            'temperature' => (int)$forecast['timelines']['daily'][0]['values']['temperatureAvg'], 
-            'humidity' => (int)$forecast['timelines']['daily'][0]['values']['humidityAvg'], 
-            'wind_speed' => (int)$forecast['timelines']['daily'][0]['values']['windSpeedAvg'],
-          ];
+        $apiKey = config('services.tomorrow_io.api_key');
+        // Ihr API, um ducrh Stadtnamen Wetterinfo zu bekommen
+        $response = Http::get("https://api.tomorrow.io/v4/weather/forecast?location=$cityName&apikey=$apiKey");
+        $forecast = json_decode($response->getBody(), true);
 
-          return $filteredForecast;
+          if(!count($forecast)) {
+            throw new \Exception("Unsere API konnte Wetterinfos für Ihre Stadt nicht finden. Bitte geben Sie eine Andere ein.");
+          }
+
+        $filteredForecast = [
+          'plz' => $plz,
+          'name' => $forecast['location']['name'], 
+          'temperature' => (int)$forecast['timelines']['daily'][0]['values']['temperatureAvg'], 
+          'humidity' => (int)$forecast['timelines']['daily'][0]['values']['humidityAvg'], 
+          'wind_speed' => (int)$forecast['timelines']['daily'][0]['values']['windSpeedAvg'],
+        ];
+
+        return $filteredForecast;
       }
-
-
-      
     }

@@ -28,12 +28,18 @@
                 url: '{{ url('/get-statistics') }}',
                 dataType: 'json',
                 success: function(response){
-                    $.each(response.statistics, function (index, temperature) {
-                        $("#statisticsList").append('<p><b>' + index + ':</b> ' + temperature + '°C</p>');
-                    });
+                    if(response.serviceResponse.success) {
+                        console.log(response.serviceResponse.success);
+                        $.each(response.serviceResponse.data, function (index, temperature) {
+                            $("#statisticsList").append('<p><b>' + index + ':</b> ' + temperature + '°C</p>');
+                        });
+                    } else {
+                        console.log(response.serviceResponse.success);
+                        $("#statisticsList").append('<p>' + response.serviceResponse.message + '</p>');
+                    }
                 },
                 error: function(error){
-                    console.log(error);
+                    $("#statisticsList").append('<p>Problem beim Schildern der Daten</p>');
                 }
             });
         }

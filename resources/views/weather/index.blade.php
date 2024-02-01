@@ -67,16 +67,20 @@
                     data: formData,
                     dataType: 'json',
                     success: function(response) {
-                        $('#cityName').html('City: ' + response.forecast.name);
-                        $('#temperature').html('Avg. Temperature: ' + response.forecast.temperature + '°C');
-                        $('#humidity').html('Avg. Humidity: ' + response.forecast.humidity + '%');
-                        $('#wind_speed').html('Avg. Wind speed: ' + response.forecast.wind_speed + ' mph');
-
-                        //
-                        getHistory();
+                        $('#weatherContainer p').html('');
+                        if(response.serviceResponse.success){
+                            let forecast = response.serviceResponse.data;
+                            $('#cityName').html('City: ' + forecast.name);
+                            $('#temperature').html('Avg. Temperature: ' + forecast.temperature + '°C');
+                            $('#humidity').html('Avg. Humidity: ' + forecast.humidity + '%');
+                            $('#wind_speed').html('Avg. Wind speed: ' + forecast.wind_speed + ' mph');
+                            getHistory();
+                        } else {
+                            $("#weatherContainer").append('<p>' + response.serviceResponse.message + '</p>');
+                        }
                     },
                     error: function(error) {
-                        console.log(error);
+                        $("#weatherContainer").append('<p>Problem beim Schildern der Daten</p>');
                     }
                 });
         }
@@ -88,21 +92,28 @@
                 dataType: 'json',
                 success: function(response) {
                     $('#queryList').html('');
-                    $.each(response.queries, function(index, query) {
-                        let date = new Date(query.created_at);
-                        date = date.toLocaleString('de-DE', options);
+                    if(response.serviceResponse.success){
+                        $.each(response.serviceResponse.data, function(index, query) {
+                            let date = new Date(query.created_at);
+                            date = date.toLocaleString('de-DE', options);
 
-                        $('#queryList').append('<span><b>' + query.id + '. PLZ: </b>' + query.plz + ' - <b>Time:</b> ' + date + '</span><button onclick="RepeatQuery(' + query.plz + ')">Wiederholen</button><br/>')
-                    });
+                            $('#queryList').append('<span><b>' + query.id + '. PLZ: </b>' + query.plz + ' - <b>Time:</b> ' + date + '</span><button onclick="RepeatQuery(' + query.plz + ')">Wiederholen</button><br/>')
+                        });
+                    } else {
+                        $("#queryList").append('<p>' + response.serviceResponse.message + '</p>');
+                    }
                 },
                 error: function(error) {
-                    console.log(error);
+                    $("#queryList").append('<p>Problem beim Schildern der Daten</p>');
                 }
             });
         }
 
         function RepeatQuery(plz) {
-                document.getElementById('plz').value = plz;
+            plzString = plz.toString()
+            plzString = '0'.repeat(5 - plzString.length) + plzString;
+
+                document.getElementById('plz').value = plzString;
                 getWeather();
 
                 //
