@@ -12,8 +12,8 @@
 
     <form id="weatherForm" method="post">
         @csrf
-        <label for="plz">Enter City Name:</label>
-        <input type="text" id="city" name="city" required>
+        <label for="city">Enter City Name:</label>
+        <input type="text" id="plz" name="plz" required>
         <button type="button" onclick="getWeather()">Get Weather</button>
     </form>
     <hr></hr>

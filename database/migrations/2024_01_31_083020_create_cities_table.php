@@ -12,9 +12,9 @@ class CreateCitiesTable extends Migration
             $table->id();
             $table->integer('plz');
             $table->string('name');
-            $table->float('temperature');
-            $table->float('humidity');
-            $table->float('wind_speed');
+            $table->integer('temperature');
+            $table->integer('humidity');
+            $table->integer('wind_speed');
             $table->timestamps();
         });
     }
