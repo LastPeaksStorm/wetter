@@ -24,12 +24,12 @@
             @csrf
             <label for="city" id="formLabel">Enter City Name:</label>
             <input type="text" id="plz" name="plz" required>
-            <button type="button" onclick="getWeather()">Get Weather</button>
+            <button type="button" id="weatherButton" onclick="getWeather()">Get Weather</button>
         </form>
         <hr/>
 
+        <h3>Weather Information: </h3>
         <div id="weatherContainer">
-            <h3>Weather Information: </h3>
             <p id="cityName"></p>
             <p id="temperature"></p>
             <p id="humidity"></p>
@@ -59,6 +59,12 @@
         getHistory();
     });
 
+    document.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        document.getElementById("weatherButton").click();
+      }
+    });
+
     // leider funktionierte diese relevantere Methode nicht fehlerlos
     // $(document).on('change', function() {
     //     getHistory();
@@ -66,28 +72,34 @@
 
     function getWeather() {
         var formData = $('#weatherForm').serialize();
-        $.ajax({
-            type: 'GET',
-            url: '{{ url('/get-weather') }}',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                $('#weatherContainer p').html('');
-                if (response.serviceResponse.success) {
-                    let forecast = response.serviceResponse.data;
-                    $('#cityName').html('<b>City: </b>' + forecast.name);
-                    $('#temperature').html('<b>Avg. Temperature: </b>' + forecast.temperature + '°C');
-                    $('#humidity').html('<b>Avg. Humidity: </b>' + forecast.humidity + '%');
-                    $('#wind_speed').html('<b>Avg. Wind speed: </b>' + forecast.wind_speed + ' mph');
-                    getHistory();
-                } else {
-                    $("#weatherContainer").html('<p>' + response.serviceResponse.message + '</p>');
+        if (formData.split('plz=')[1]) {
+            $.ajax({
+                type: 'GET',
+                url: '{{ url('/get-weather') }}',
+                data: formData,
+                dataType: 'json',
+                success: function (response) {
+                    $('#weatherContainer p').html('');
+                    if (response.serviceResponse.success) {
+                        let forecast = response.serviceResponse.data;
+                        console.log(forecast.name);
+                        $('#cityName').html('<b>City: </b>' + forecast.name);
+                        $('#temperature').html('<b>Avg. Temperature: </b>' + forecast.temperature + '°C');
+                        $('#humidity').html('<b>Avg. Humidity: </b>' + forecast.humidity + '%');
+                        $('#wind_speed').html('<b>Avg. Wind speed: </b>' + forecast.wind_speed + ' mph');
+                        getHistory();
+                    } else {
+                        $("#weatherContainer").html('<p>' + response.serviceResponse.message + '</p>');
+                    }
+                },
+                error: function (error) {
+                    $("#weatherContainer").html('<p>Problem beim Schildern der Daten</p>');
                 }
-            },
-            error: function (error) {
-                $("#weatherContainer").html('<p>Problem beim Schildern der Daten</p>');
-            }
-        });
+            });
+        }
+        else {
+            $("#weatherContainer").html('<p>PLZ field cannot be empty!</p>');
+        }
     }
 
     function getHistory() {
