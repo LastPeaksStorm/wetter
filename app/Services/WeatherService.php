@@ -8,6 +8,7 @@
     use App\Http\Requests\UpdateCityRequest;
     use Illuminate\Http\Request;
     use Carbon\Carbon;
+    use DateTime;
 
     class WeatherService
     {
@@ -81,7 +82,8 @@
       }
 
       public function GetAllQueries() {
-        return QueryHistory::all();
+        $queries = QueryHistory::all();
+        return $queries;
       }
 
       public function ProtokolForecast($forecast) {

@@ -7,6 +7,12 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="{{ url('/') }}">Home</a></li>
+            <li><a href="{{ url('/statistics') }}">Statistics</a></li>
+        </ul>
+    </nav>
 
     <h1>Weather App</h1>
 
@@ -26,9 +32,37 @@
         <p id="wind_speed"></p>
     </div>
 
+    
+</body>
+<footer>
+    <hr></hr>
+        <h3>Query History: </h3>
+        <div id="queryList"></div>
+</footer>
+
     <script>
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: "numeric", 
+            minute: "numeric", 
+            second: "numeric" 
+        };
+
         $(document).ready(function() {
             getHistory();
+        });
+
+        // leider funktionierte diese relevantere Methode nicht fehlerlos
+        // $(document).on('change', function() {
+        //     getHistory();
+        // });
+
+
+
+        $(document).on('change', function() {
+            
         });
 
         function getWeather() {
@@ -43,6 +77,9 @@
                         $('#temperature').html('Avg. Temperature: ' + response.forecast.temperature + '°C');
                         $('#humidity').html('Avg. Humidity: ' + response.forecast.humidity + '%');
                         $('#wind_speed').html('Avg. Wind speed: ' + response.forecast.wind_speed + ' mph');
+
+                        //
+                        getHistory();
                     },
                     error: function(error) {
                         console.log(error);
@@ -56,20 +93,27 @@
                 url: '{{ url('/get-history') }}',
                 dataType: 'json',
                 success: function(response) {
-                    var historyList = response.history.join('<br>');
-                    $('#queryList').html('<h3>Query History: </h3>' + historyList);
+                    $('#queryList').html('');
+                    $.each(response.queries, function(index, query) {
+                        let date = new Date(query.created_at);
+                        date = date.toLocaleString('de-DE', options);
+
+                        $('#queryList').append('<span><b>' + query.id + '. PLZ: </b>' + query.plz + ' - <b>Time:</b> ' + date + '</span><button onclick="RepeatQuery(' + query.plz + ')">Wiederholen</button><br/>')
+                    });
                 },
                 error: function(error) {
                     console.log(error);
                 }
             });
         }
+
+        function RepeatQuery(plz) {
+                document.getElementById('plz').value = plz;
+                getWeather();
+
+                //
+                getHistory();
+        }
     </script>
 
-</body>
-<footer>
-    <hr></hr>
-        <h3>Query History: </h3>
-        <div id="queryList"></div>
-</footer>
 </html>

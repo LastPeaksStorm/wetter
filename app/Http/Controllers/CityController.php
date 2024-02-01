@@ -25,6 +25,7 @@
 
         public function GetHistory(Request $request)
         {
-            return $this->weatherService->GetAllQueries();
+            $queries = $this->weatherService->GetAllQueries();
+            return compact('queries');
         }
     }
