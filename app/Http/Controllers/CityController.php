@@ -28,4 +28,10 @@
             $queries = $this->weatherService->GetAllQueries();
             return compact('queries');
         }
+
+        public function GetStatistics(Request $request)
+        {
+            $statistics = $this->weatherService->GetRegionsTemperature();
+            return compact('statistics');
+        }
     }

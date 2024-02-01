@@ -12,6 +12,71 @@
 
     class WeatherService
     {
+      public function FetchForecast($plz) {
+        $city = City::where('plz', $plz)->latest()->first();
+
+        if ($city && !$this->hourHasPassed(Carbon::parse($city->updated_at))) {
+            $newForecast = [
+                'plz' => $plz, 
+                'name' => $city->name, 
+                'temperature' => $city->temperature, 
+                'humidity' => $city->humidity, 
+                'wind_speed' => $city->wind_speed,
+            ];
+        } 
+        else {
+            $newForecast = $this->getWeatherForecast($plz);
+
+            if(!$city){
+              City::create($newForecast);
+            } else {
+                $city->plz = $newForecast['plz'];
+                $city->name = $newForecast['name'];
+                $city->temperature = $newForecast['temperature'];
+                $city->humidity = $newForecast['humidity'];
+                $city->wind_speed = $newForecast['wind_speed'];
+    
+                $city->save();
+            }
+        }
+        
+        $this->ProtokolForecast($newForecast);
+        return $newForecast;
+    }
+
+    public function GetAllQueries() {
+      $queries = QueryHistory::all();
+      return $queries;
+    }
+
+    public function ProtokolForecast($forecast) {
+        QueryHistory::create($forecast);
+    }
+
+    public function GetRegionsTemperature() {
+      $cities = City::all();
+      $regionsInfo = [];
+      foreach ($cities as $city) {
+        $region = ((string)$city->plz)[0];
+        $regionsInfo[$region] = 0;
+      }
+
+      foreach ($regionsInfo as $key => &$value) {
+        $sumTemper = 0;
+        $count = 0;
+        foreach($cities as $city){
+          if(((string)$city->plz)[0] == $key){
+            $sumTemper += $city->temperature;
+            $count++;
+          }
+        }
+
+        $value = $sumTemper / $count;
+      }
+
+      return $regionsInfo;
+    }
+
       public function hourHasPassed(Carbon $datetime) {
         $currentTime = Carbon::now();
 
@@ -49,44 +114,5 @@
       }
 
 
-      public function FetchForecast($plz) {
-          $city = City::where('plz', $plz)->latest()->first();
-
-          if ($city && !$this->hourHasPassed(Carbon::parse($city->updated_at))) {
-              $newForecast = [
-                  'plz' => $plz, 
-                  'name' => $city->name, 
-                  'temperature' => $city->temperature, 
-                  'humidity' => $city->humidity, 
-                  'wind_speed' => $city->wind_speed,
-              ];
-          } 
-          else {
-              $newForecast = $this->getWeatherForecast($plz);
-
-              if(!$city){
-                City::create($newForecast);
-              } else {
-                  $city->plz = $newForecast['plz'];
-                  $city->name = $newForecast['name'];
-                  $city->temperature = $newForecast['temperature'];
-                  $city->humidity = $newForecast['humidity'];
-                  $city->wind_speed = $newForecast['wind_speed'];
       
-                  $city->save();
-              }
-          }
-          
-          $this->ProtokolForecast($newForecast);
-          return $newForecast;
-      }
-
-      public function GetAllQueries() {
-        $queries = QueryHistory::all();
-        return $queries;
-      }
-
-      public function ProtokolForecast($forecast) {
-          QueryHistory::create($forecast);
-      }
     }

@@ -13,5 +13,6 @@ Route::get('/statistics', function () {
 
 Route::get('/get-weather', [CityController::class, 'GetWeather']);
 Route::get('/get-history', [CityController::class, 'GetHistory']);
+Route::get('/get-statistics', [CityController::class, 'GetStatistics']);
 
 require __DIR__.'/auth.php';

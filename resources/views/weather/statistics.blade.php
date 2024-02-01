@@ -15,6 +15,27 @@
     </nav>
 
     <h1>Statistics: </h1>
-    <div id="statistics"></div>
+    <div id="statisticsList"></div>
 
+    <script>
+        $(document).ready(function() {
+            GetStatistics();
+        });
+
+        function GetStatistics() {
+            $.ajax({
+                type: 'GET',
+                url: '{{ url('/get-statistics') }}',
+                dataType: 'json',
+                success: function(response){
+                    $.each(response.statistics, function (index, temperature) {
+                        $("#statisticsList").append('<p><b>' + index + ':</b> ' + temperature + '°C</p>');
+                    });
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }
+    </script>
 </html>
