@@ -81,12 +81,10 @@
                 success: function (response) {
                     $('#weatherContainer p').html('');
                     if (response.serviceResponse.success) {
-                        let forecast = response.serviceResponse.data;
-                        console.log(forecast.name);
-                        $('#cityName').html('<b>City: </b>' + forecast.name);
-                        $('#temperature').html('<b>Avg. Temperature: </b>' + forecast.temperature + '°C');
-                        $('#humidity').html('<b>Avg. Humidity: </b>' + forecast.humidity + '%');
-                        $('#wind_speed').html('<b>Avg. Wind speed: </b>' + forecast.wind_speed + ' mph');
+                        $('#cityName').html('<b>City: </b>' + response.serviceResponse.data.name);
+                        $('#temperature').html('<b>Avg. Temperature: </b>' + response.serviceResponse.data.temperature + '°C');
+                        $('#humidity').html('<b>Avg. Humidity: </b>' + response.serviceResponse.data.humidity + '%');
+                        $('#wind_speed').html('<b>Avg. Wind speed: </b>' + response.serviceResponse.data.wind_speed + ' mph');
                         getHistory();
                     } else {
                         $("#weatherContainer").html('<p>' + response.serviceResponse.message + '</p>');
