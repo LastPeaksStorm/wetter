@@ -19,6 +19,7 @@
     <hr></hr>
 
     <div id="weatherContainer">
+        <h3>Weather Information: </h3>
         <p id="cityName"></p>
         <p id="temperature"></p>
         <p id="humidity"></p>
@@ -26,10 +27,14 @@
     </div>
 
     <script>
+        $(document).ready(function() {
+            getHistory();
+        });
+
         function getWeather() {
             var formData = $('#weatherForm').serialize();
                 $.ajax({
-                    type: 'POST',
+                    type: 'GET',
                     url: '{{ url('/get-weather') }}',
                     data: formData,
                     dataType: 'json',
@@ -44,7 +49,27 @@
                     }
                 });
         }
+
+        function getHistory() {
+            $.ajax({
+                type: 'GET',
+                url: '{{ url('/get-history') }}',
+                dataType: 'json',
+                success: function(response) {
+                    var historyList = response.history.join('<br>');
+                    $('#queryList').html('<h3>Query History: </h3>' + historyList);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
     </script>
 
 </body>
+<footer>
+    <hr></hr>
+        <h3>Query History: </h3>
+        <div id="queryList"></div>
+</footer>
 </html>

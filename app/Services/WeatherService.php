@@ -80,6 +80,10 @@
           return $newForecast;
       }
 
+      public function GetAllQueries() {
+        return QueryHistory::all();
+      }
+
       public function ProtokolForecast($forecast) {
           QueryHistory::create($forecast);
       }

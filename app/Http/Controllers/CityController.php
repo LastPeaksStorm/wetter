@@ -22,4 +22,9 @@
             
             return compact('forecast');
         } 
+
+        public function GetHistory(Request $request)
+        {
+            return $this->weatherService->GetAllQueries();
+        }
     }

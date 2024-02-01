@@ -9,6 +9,7 @@ class QueryHistory extends Model
 {
     protected $fillable = [
         'plz',
+        'created_at',
     ];
 
     use HasFactory;
